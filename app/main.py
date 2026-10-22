@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.core.database import init_db
-from app.routers import auth_router, items_router
+from app.routers import auth_router, product_router
 
 
 @asynccontextmanager
@@ -14,7 +14,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Warung Umi Neneng - POS API",
+    title="Point Of Sales API",
     description="Backend REST API Point of Sale (POS) dengan FastAPI, SQLModel, dan PostgreSQL",
     version="1.0.0",
     lifespan=lifespan,
@@ -22,7 +22,7 @@ app = FastAPI(
 
 # Registrasi Router
 app.include_router(auth_router)
-app.include_router(items_router)
+app.include_router(product_router)
 
 
 @app.get("/", tags=["Root"])

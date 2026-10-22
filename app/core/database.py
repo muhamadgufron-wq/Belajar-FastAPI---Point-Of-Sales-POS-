@@ -7,8 +7,8 @@ engine = create_engine(settings.DATABASE_URL, echo=True)
 
 def init_db():
     """Mengimpor semua model agar terdaftar di SQLModel metadata sebelum create_all."""
-    from app.models.item import Item  # noqa: F401
     from app.models.user import User  # noqa: F401
+    from app.models.product import Product  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
 
