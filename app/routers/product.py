@@ -23,8 +23,13 @@ def create_products(products_in: ProductCreate, session: Session = Depends(get_s
 
 
 @router.get("/", response_model=ProductListResponse, summary="Ambil semua product")
-def read_products(session: Session = Depends(get_session)):
-    product = session.exec(select(Product).where(Product.is_active == True)).all()
+def read_products(
+    id_category: int | None = None, 
+    session: Session = Depends(get_session)):
+    statement = select(Product).where(Product.is_active == True)
+    if id_category is not None:
+        statement = statement.where(Product.id_category == id_category)
+    product = session.exec(statement).all()
     return {
         "message": "Berhasil mengambil data product",
         "data": product,

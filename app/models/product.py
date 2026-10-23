@@ -5,6 +5,7 @@ from sqlalchemy import func
 
 class Product(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    id_category: int | None = Field(default=None, foreign_key="category.id")
     name: str
     harga_modal: float
     harga_jual: float

@@ -3,6 +3,7 @@ from datetime import datetime
 
 class ProductCreate(SQLModel):
     name: str
+    id_category: int | None = None
     harga_modal: float
     harga_jual: float
     stock: int
@@ -10,6 +11,7 @@ class ProductCreate(SQLModel):
 
 class ProductRead(SQLModel):
     id: int
+    id_category: int | None = None
     name: str
     harga_modal: float
     harga_jual: float
@@ -20,10 +22,10 @@ class ProductRead(SQLModel):
 
 class ProductUpdate(SQLModel):
     name: str | None = None
+    id_category: int | None = None
     harga_modal: float | None = None
     harga_jual: float | None = None
     stock: int | None = None
-    is_active: bool | None = None
 
 class ProductListResponse(SQLModel):
     message: str = "Berhasil mengambil data product"
