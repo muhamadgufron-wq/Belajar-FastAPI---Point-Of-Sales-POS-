@@ -12,6 +12,11 @@ from app.schemas.product import (
     ProductResponse,
     ProductUpdate,
 )
+from app.schemas.report import (
+    ReportSummary,
+    ReportSummaryResponse,
+    TopProduct,
+)
 from app.schemas.transaction import (
     TransactionCreate,
     TransactionItemCreate,
@@ -33,6 +38,9 @@ __all__ = [
     "ProductUpdate",
     "ProductResponse",
     "ProductListResponse",
+    "ReportSummary",
+    "ReportSummaryResponse",
+    "TopProduct",
     "TransactionCreate",
     "TransactionItemCreate",
     "TransactionItemRead",

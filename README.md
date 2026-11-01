@@ -38,7 +38,12 @@ Backend RESTful API untuk sistem **Point of Sale (POS) / Kasir Toko** yang diran
    - **Atomic Database Transaction (ACID):** Jika terjadi kegagalan sistem di tengah jalan, seluruh perubahan transaksi di-rollback otomatis sehingga stok tidak berkurang sembarangan.
    - **Struk Belanja Digital:** Menghitung total transaksi, uang kembalian, dan menyimpan rincian barang belanjaan ke dalam tabel relasi `TransactionItem`.
 
-5. **📐 Standard Response Envelope:**
+5. **📊 Dashboard Laporan & Analitik Penjualan:**
+   - Ringkasan otomatis performa toko (`GET /reports/summary`).
+   - Kalkulasi _real-time_ untuk total omzet, laba bersih (profit), total transaksi kasir, dan volume produk terjual.
+   - Analisis produk terlaris (_Top 5 Best Seller_) beserta total omzet yang dihasilkan per item.
+
+6. **📐 Standard Response Envelope:**
    - Seluruh response API dibungkus rapi dalam format standar:
      ```json
      {
@@ -69,13 +74,15 @@ Belajar FastAPI/
 │   │   ├── user.py
 │   │   ├── category.py
 │   │   ├── product.py
-│   │   └── transaction.py
+│   │   ├── transaction.py
+│   │   └── report.py
 │   │
 │   ├── routers/                     # Controller Endpoint REST API
 │   │   ├── auth.py                  # Endpoint /auth (register, login, me)
 │   │   ├── category.py              # Endpoint /categories
 │   │   ├── product.py               # Endpoint /products
-│   │   └── transaction.py           # Endpoint /transactions (checkout kasir)
+│   │   ├── transaction.py           # Endpoint /transactions (checkout kasir)
+│   │   └── report.py                # Endpoint /reports (laporan omzet & profit)
 │   │
 │   ├── dependencies.py              # Satpam Auth (get_current_user)
 │   └── main.py                      # FastAPI Orchestrator & Lifespan

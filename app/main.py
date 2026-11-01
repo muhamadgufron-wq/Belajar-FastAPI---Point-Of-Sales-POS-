@@ -8,6 +8,7 @@ from app.routers import (
     category_router,
     product_router,
     transaction_router,
+    report_router,
 )
 
 
@@ -30,6 +31,7 @@ app.include_router(auth_router)
 app.include_router(product_router)
 app.include_router(category_router)
 app.include_router(transaction_router)
+app.include_router(report_router)
 
 
 @app.get("/", tags=["Root"])
