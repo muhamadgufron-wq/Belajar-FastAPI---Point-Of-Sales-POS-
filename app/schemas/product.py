@@ -18,7 +18,7 @@ class ProductRead(SQLModel):
     stock: int
     is_active: bool = True
     created_at: datetime
-    updated_at: datetime
+    updated_at: datetime | None = None
 
 class ProductUpdate(SQLModel):
     name: str | None = None

@@ -10,7 +10,7 @@ class CategoryRead(SQLModel):
     name: str
     description: str | None = None
     created_at: datetime
-    updated_at: datetime
+    updated_at: datetime | None = None
 
 class CategoryUpdate(SQLModel):
     name: str | None = None
