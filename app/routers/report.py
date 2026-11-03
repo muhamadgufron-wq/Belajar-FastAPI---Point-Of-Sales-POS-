@@ -7,11 +7,12 @@ from app.dependencies import get_current_user
 from app.models.product import Product
 from app.models.transaction import Transaction, TransactionItem
 from app.schemas.report import ReportSummary, ReportSummaryResponse, TopProduct
+from app.dependencies import require_roles
 
 router = APIRouter(
     prefix="/reports",
     tags=["Reports & Analytics"],
-    dependencies=[Depends(get_current_user)],
+    dependencies=[Depends(require_roles(["OWNER"]))],
 )
 
 

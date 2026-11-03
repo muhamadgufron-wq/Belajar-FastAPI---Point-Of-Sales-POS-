@@ -6,6 +6,7 @@ from app.schemas.category import (
     CategoryUpdate,
 )
 from app.schemas.product import (
+    PaginationMeta,
     ProductCreate,
     ProductListResponse,
     ProductRead,
@@ -33,6 +34,7 @@ __all__ = [
     "CategoryUpdate",
     "CategoryResponse",
     "CategoryListResponse",
+    "PaginationMeta",
     "ProductCreate",
     "ProductRead",
     "ProductUpdate",

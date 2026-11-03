@@ -11,7 +11,9 @@ class UserCreate(SQLModel):
 class UserRead(SQLModel):
     id: uuid.UUID
     username: str
+    role: str
     is_active: bool
+
 
 
 class Token(SQLModel):

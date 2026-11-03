@@ -17,13 +17,17 @@ Backend RESTful API untuk sistem **Point of Sale (POS) / Kasir Toko** yang diran
 
 ## ✨ Fitur Utama
 
-1. **🔐 Autentikasi & Otorisasi Kasir:**
-   - Registrasi kasir baru dengan password yang di-hash aman menggunakan algoritma **Argon2id**.
+1. **🔐 Autentikasi & Otorisasi (Role-Based Access Control - RBAC):**
+   - Registrasi user dengan password yang di-hash aman menggunakan algoritma **Argon2id**.
    - Login berbasis **OAuth2 Password Bearer** yang menghasilkan **JWT Access Token**.
-   - Proteksi endpoint menggunakan FastAPI Dependency Injection (`get_current_user`).
+   - **Hak Akses Berbasis Role (RBAC):**
+     - **`KASIR`**: Berhak melayani transaksi kasir (`POST /transactions/`), melihat riwayat transaksi kasir, serta melihat katalog produk (`GET /products/`). Akses dibatasi agar tidak bisa mengubah katalog produk/kategori dan tidak bisa melihat laporan keuangan.
+     - **`OWNER`**: Akses penuh ke seluruh sistem, termasuk penambahan/perubahan/penghapusan produk dan kategori, serta akses penuh ke laporan penjualan toko (omzet, laba bersih, dan produk terlaris).
+   - Proteksi endpoint tingkat lanjut menggunakan FastAPI Dependency Injection (`get_current_user` & `require_roles`).
 
 2. **📦 Manajemen Produk & Inventori (Katalog):**
    - CRUD lengkap untuk produk toko (nama, harga modal, harga jual, dan stok barang).
+   - **Pencarian & Pagination:** Pencarian nama produk _case-insensitive_ (`search=...`) serta pembagian halaman data (`page=...&limit=...`) lengkap dengan metadata `total_data` dan `total_page`.
    - **Audit Timestamps:** Kolom `created_at` dan `updated_at` terisi dan terupdate otomatis dari database.
    - **Partial Update (`PATCH`):** Kasir/admin bisa mengedit sebagian data saja (misal hanya stok) tanpa harus mengirim ulang semua field.
    - **Soft Delete:** Menonaktifkan produk (`is_active = False`) agar riwayat transaksi dan struk masa lalu tidak rusak.
@@ -84,7 +88,7 @@ Belajar FastAPI/
 │   │   ├── transaction.py           # Endpoint /transactions (checkout kasir)
 │   │   └── report.py                # Endpoint /reports (laporan omzet & profit)
 │   │
-│   ├── dependencies.py              # Satpam Auth (get_current_user)
+│   ├── dependencies.py              # Satpam Auth & RBAC (get_current_user & require_roles)
 │   └── main.py                      # FastAPI Orchestrator & Lifespan
 │
 ├── .env.example                     # Template environment variables

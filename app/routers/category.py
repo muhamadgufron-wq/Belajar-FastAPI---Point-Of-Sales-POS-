@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 from app.core.database import get_session
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_roles
 from app.models.category import Category
 from app.schemas.category import CategoryCreate, CategoryRead, CategoryListResponse, CategoryResponse, CategoryUpdate
+
 
 router = APIRouter(
     prefix="/category",
@@ -12,7 +13,7 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)],
 )
 
-@router.post("/", response_model=CategoryRead, summary="Tambah kategori baru")
+@router.post("/", response_model=CategoryRead, summary="Tambah kategori baru", status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles(["OWNER"]))])
 def create_categories(categories_in: CategoryCreate, session: Session = Depends(get_session)):
     category = Category.model_validate(categories_in)
     session.add(category)
@@ -39,7 +40,7 @@ def read_category(category_id: int, session: Session = Depends(get_session)):
         "data": category,
     }
 
-@router.patch("/{category_id}", response_model=CategoryResponse, summary="Update kategori berdasarkan ID")
+@router.patch("/{category_id}", response_model=CategoryResponse, summary="Update kategori berdasarkan ID", dependencies=[Depends(require_roles(["OWNER"]))], status_code=status.HTTP_200_OK)
 def update_category(category_id: int, category_in: CategoryUpdate, session: Session = Depends(get_session)):
     category = session.get(Category, category_id)
     if not category:
@@ -54,7 +55,7 @@ def update_category(category_id: int, category_in: CategoryUpdate, session: Sess
         "data": category,
     }
 
-@router.delete("/{category_id}", summary="Hapus kategori berdasarkan ID")
+@router.delete("/{category_id}", summary="Hapus kategori berdasarkan ID", status_code=status.HTTP_200_OK, dependencies=[Depends(require_roles(["OWNER"]))])
 def delete_category(category_id: int, session: Session = Depends(get_session)):
     category = session.get(Category, category_id)
     if not category:

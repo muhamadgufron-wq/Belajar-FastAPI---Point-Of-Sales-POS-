@@ -7,4 +7,5 @@ class User(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     username: str = Field(unique=True, index=True)
     password: str
+    role: str = Field(default="KASIR")
     is_active: bool = Field(default=True)
