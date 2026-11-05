@@ -1,0 +1,51 @@
+services:
+  # ========================================================
+  # 🗄️ SERVICE 1: Database PostgreSQL
+  # ========================================================
+  db:
+    image: postgres:16-alpine
+    container_name: warung_pos_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: warungumineneng
+    ports:
+      - "5432:5432"
+    volumes:
+      # Volume permanen agar data transaksi tidak hilang saat container dimatikan
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Memastikan database benar-benar sudah siap menerima koneksi
+      test: ["CMD-SHELL", "pg_isready -U postgres -d warungumineneng"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ========================================================
+  # 🚀 SERVICE 2: Backend FastAPI
+  # ========================================================
+  app:
+    build: .
+    container_name: warung_pos_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        # Backend baru akan dinyalakan setelah database berstatus 'healthy'
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      # Di dalam jaringan Docker, nama host database adalah nama servicenya: '@db:5432'
+      DATABASE_URL: postgresql+psycopg://postgres:postgrespassword@db:5432/warungumineneng
+      SECRET_KEY: ${SECRET_KEY:-super_secret_jwt_key_warung_umi_neneng_2026}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+      FIRST_SUPERUSER_USERNAME: ${FIRST_SUPERUSER_USERNAME:-owner_neneng}
+      FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:-OwnerNeneng123!}
+
+# ========================================================
+# 💾 PERSISTENT VOLUMES (Penyimpanan Abadi)
+# ========================================================
+volumes:
+  postgres_data:

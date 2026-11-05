@@ -111,6 +111,9 @@ Belajar FastAPI/
 │
 ├── tests/                           # 40+ Automated Unit Tests (Pytest)
 ├── seed.py                          # Shortcut CLI runner untuk Database Seeder
+├── Dockerfile                       # Blueprint container image backend FastAPI + uv
+├── docker-compose.yml               # Orkestrator multi-container (FastAPI + PostgreSQL)
+├── .dockerignore                    # Mencegah file sampah masuk ke dalam image
 ├── .env.example                     # Template environment variables
 ├── pyproject.toml                   # Konfigurasi dependency & project metadata
 └── README.md
@@ -187,3 +190,35 @@ Jalankan seluruh skenario pengujian otomatis (Auth, RBAC, Rate Limiting, Produk,
 ```bash
 uv run pytest -v
 ```
+
+---
+
+## 🐳 Cara Menjalankan Menggunakan Docker Compose (Production Ready)
+
+Kamu juga dapat menjalankan seluruh arsitektur sistem (Backend FastAPI + Database PostgreSQL) secara terisolasi dalam hitungan detik tanpa perlu menginstall Python maupun PostgreSQL di mesin lokal/server VPS:
+
+### 1. Build & Jalankan Seluruh Container di Background
+```bash
+docker compose up -d --build
+```
+
+### 2. Inisialisasi Database Seeder di dalam Container
+```bash
+docker compose exec app python seed.py
+```
+
+### 3. Periksa Status Container yang Sedang Berjalan
+```bash
+docker compose ps
+```
+
+### 4. Melihat Live Logs Aplikasi Backend
+```bash
+docker compose logs -f app
+```
+
+### 5. Mematikan Seluruh Sistem
+```bash
+docker compose down
+```
+> *(Seluruh data transaksi dan produk tetap aman tersimpan di storage lokal berkat volume `postgres_data`)*
