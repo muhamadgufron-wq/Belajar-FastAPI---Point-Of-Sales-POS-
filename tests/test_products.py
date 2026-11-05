@@ -99,3 +99,23 @@ def test_product_search_and_pagination(client, owner_headers):
     assert "limit" in meta
     assert "total_data" in meta
     assert "total_page" in meta
+
+
+def test_product_negative_values_rejected(client, owner_headers):
+    """Menolak pembuatan produk dengan harga atau stok bernilai negatif (422)."""
+    # 1. Harga modal negatif
+    r1 = client.post(
+        "/products/",
+        headers=owner_headers,
+        json={"name": "Barang Minus", "harga_modal": -5000, "harga_jual": 10000, "stock": 10},
+    )
+    assert r1.status_code == 422
+
+    # 2. Stok negatif
+    r2 = client.post(
+        "/products/",
+        headers=owner_headers,
+        json={"name": "Barang Minus", "harga_modal": 5000, "harga_jual": 10000, "stock": -5},
+    )
+    assert r2.status_code == 422
+

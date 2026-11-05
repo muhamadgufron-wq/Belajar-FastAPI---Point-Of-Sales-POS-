@@ -1,12 +1,11 @@
 def test_checkout_empty_cart(client, kasir_headers):
-    """Menolak checkout jika keranjang belanja kasir kosong (400)."""
+    """Menolak checkout jika keranjang belanja kasir kosong (422 Unprocessable Entity)."""
     response = client.post(
         "/transactions/",
         headers=kasir_headers,
         json={"uang_bayar": 50000.0, "items": []},
     )
-    assert response.status_code == 400
-    assert "Keranjang belanja tidak boleh kosong" in response.json()["detail"]
+    assert response.status_code == 422
 
 
 def test_checkout_insufficient_payment(client, owner_headers, kasir_headers):
@@ -134,3 +133,31 @@ def test_transaction_receipt_format_and_print(client, owner_headers, kasir_heade
     assert "text/plain" in res_print.headers["content-type"]
     assert "WARUNG UMI NENENG" in res_print.text
     assert "Kembalian" in res_print.text
+
+
+def test_transaction_negative_quantity_and_payment_rejected(client, kasir_headers):
+    """Menolak checkout jika quantity <= 0 atau uang bayar negatif (422 Unprocessable Entity)."""
+    # 1. Kuantitas minus
+    r1 = client.post(
+        "/transactions/",
+        headers=kasir_headers,
+        json={"uang_bayar": 50000, "items": [{"id_product": 1, "quantity": -3}]},
+    )
+    assert r1.status_code == 422
+
+    # 2. Kuantitas nol
+    r2 = client.post(
+        "/transactions/",
+        headers=kasir_headers,
+        json={"uang_bayar": 50000, "items": [{"id_product": 1, "quantity": 0}]},
+    )
+    assert r2.status_code == 422
+
+    # 3. Uang bayar negatif
+    r3 = client.post(
+        "/transactions/",
+        headers=kasir_headers,
+        json={"uang_bayar": -10000, "items": [{"id_product": 1, "quantity": 1}]},
+    )
+    assert r3.status_code == 422
+

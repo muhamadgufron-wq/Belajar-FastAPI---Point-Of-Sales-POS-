@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from app.core.database import get_session
 from app.core.security import create_access_token, hash_password, verify_password
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_roles
 from app.models.user import User
 from app.schemas.user import Token, UserCreate, UserRead
 
@@ -17,10 +17,22 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
     "/register",
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED,
-    summary="Daftar akun baru",
+    summary="Daftar akun pengguna baru (Khusus Owner)",
+    dependencies=[Depends(require_roles(["OWNER"]))],
 )
-def register(user_in: UserCreate, session: Session = Depends(get_session)):
-    """Mendaftar user baru dengan password yang di-hash (Argon2id)."""
+def register(
+    user_in: UserCreate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_roles(["OWNER"])),
+):
+    """Mendaftarkan akun baru (KASIR atau OWNER) dengan password Argon2id. Hanya boleh dilakukan oleh OWNER."""
+    role_upper = user_in.role.upper()
+    if role_upper not in ["KASIR", "OWNER"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Role harus bernilai 'KASIR' atau 'OWNER'",
+        )
+
     existing_user = session.exec(
         select(User).where(User.username == user_in.username)
     ).first()
@@ -35,6 +47,7 @@ def register(user_in: UserCreate, session: Session = Depends(get_session)):
     new_user = User(
         username=user_in.username,
         password=hashed_pwd,
+        role=role_upper,
     )
     session.add(new_user)
     session.commit()

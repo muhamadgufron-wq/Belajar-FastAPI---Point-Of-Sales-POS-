@@ -72,3 +72,48 @@ def test_get_current_user_unauthorized(client):
     """Memastikan endpoint terproteksi /auth/me menolak request tanpa token (401)."""
     response = client.get("/auth/me")
     assert response.status_code == 401
+
+
+def test_register_by_owner_success(client, owner_headers):
+    """OWNER berhasil mendaftarkan akun kasir baru."""
+    import uuid
+    random_user = f"kasir_{str(uuid.uuid4())[:6]}"
+    payload = {
+        "username": random_user,
+        "password": "passwordAman123",
+        "role": "KASIR",
+    }
+    response = client.post("/auth/register", headers=owner_headers, json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["username"] == random_user
+    assert data["role"] == "KASIR"
+
+
+def test_register_by_kasir_forbidden(client, kasir_headers):
+    """KASIR dilarang mendaftarkan user baru (harus 403 Forbidden)."""
+    payload = {"username": "kasir_ilegal", "password": "passwordAman123", "role": "KASIR"}
+    response = client.post("/auth/register", headers=kasir_headers, json=payload)
+    assert response.status_code == 403
+
+
+def test_register_public_unauthorized(client):
+    """User luar tanpa login dilarang mengakses endpoint registrasi (harus 401 Unauthorized)."""
+    payload = {"username": "hacker_luar", "password": "passwordAman123"}
+    response = client.post("/auth/register", json=payload)
+    assert response.status_code == 401
+
+
+def test_register_weak_password_rejected(client, owner_headers):
+    """Menolak pendaftaran jika password kurang dari 6 karakter (harus 422 Unprocessable Entity)."""
+    payload = {"username": "kasir_lemah", "password": "123"}  # cuma 3 huruf
+    response = client.post("/auth/register", headers=owner_headers, json=payload)
+    assert response.status_code == 422
+
+
+def test_register_short_username_rejected(client, owner_headers):
+    """Menolak pendaftaran jika username kurang dari 3 karakter (harus 422 Unprocessable Entity)."""
+    payload = {"username": "ab", "password": "passwordAman123"}  # cuma 2 huruf
+    response = client.post("/auth/register", headers=owner_headers, json=payload)
+    assert response.status_code == 422
+

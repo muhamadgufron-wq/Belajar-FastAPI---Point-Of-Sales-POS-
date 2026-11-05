@@ -3,13 +3,13 @@ from sqlmodel import SQLModel, Field
 from datetime import datetime
 
 class TransactionItemCreate(SQLModel):
-    id_product: int
-    quantity: int
+    id_product: int = Field(gt=0, description="ID produk harus valid")
+    quantity: int = Field(gt=0, description="Jumlah beli harus minimal 1")
 
 class TransactionCreate(SQLModel):
-    uang_bayar: float
-    tipe_pembayaran: str = "CASH"
-    items: list[TransactionItemCreate]
+    uang_bayar: float = Field(ge=0, description="Uang bayar tidak boleh bernilai negatif")
+    tipe_pembayaran: str = Field(default="CASH")
+    items: list[TransactionItemCreate] = Field(min_length=1, description="Keranjang belanja minimal 1 barang")
 
 class TransactionCancelRequest(SQLModel):
     reason: str | None = Field(default=None, description="Alasan pembatalan transaksi")

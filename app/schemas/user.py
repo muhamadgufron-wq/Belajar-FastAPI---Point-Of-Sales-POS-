@@ -1,11 +1,22 @@
 import uuid
 
-from sqlmodel import SQLModel
+from sqlmodel import Field, SQLModel
 
 
 class UserCreate(SQLModel):
-    username: str
-    password: str
+    username: str = Field(
+        min_length=3,
+        max_length=50,
+        description="Username minimal 3 karakter dan maksimal 50 karakter",
+    )
+    password: str = Field(
+        min_length=6,
+        description="Password minimal 6 karakter demi keamanan",
+    )
+    role: str = Field(
+        default="KASIR",
+        description="Role pengguna: 'KASIR' atau 'OWNER'",
+    )
 
 
 class UserRead(SQLModel):
@@ -13,7 +24,6 @@ class UserRead(SQLModel):
     username: str
     role: str
     is_active: bool
-
 
 
 class Token(SQLModel):

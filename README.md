@@ -24,6 +24,7 @@ Backend RESTful API untuk sistem **Point of Sale (POS) / Kasir Toko** yang diran
      - **`KASIR`**: Berhak melayani transaksi kasir (`POST /transactions/`), melihat riwayat transaksi kasir, serta melihat katalog produk (`GET /products/`). Akses dibatasi agar tidak bisa mengubah katalog produk/kategori dan tidak bisa melihat laporan keuangan.
      - **`OWNER`**: Akses penuh ke seluruh sistem, termasuk penambahan/perubahan/penghapusan produk dan kategori, serta akses penuh ke laporan penjualan toko (omzet, laba bersih, dan produk terlaris).
    - Proteksi endpoint tingkat lanjut menggunakan FastAPI Dependency Injection (`get_current_user` & `require_roles`).
+   - **Proteksi CORS (Cross-Origin Resource Sharing):** Whitelist domain frontend terpercaya (`localhost:5173`, `localhost:3000`, dll) untuk mencegah akses dari website pihak ketiga yang tidak berizin.
 
 2. **📦 Manajemen Produk & Inventori (Katalog):**
    - CRUD lengkap untuk produk toko (nama, harga modal, harga jual, dan stok barang).
