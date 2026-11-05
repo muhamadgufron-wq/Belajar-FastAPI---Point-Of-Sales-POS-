@@ -85,7 +85,7 @@ def read_products(
 )
 def read_product(product_id: int, session: Session = Depends(get_session)):
     product = session.get(Product, product_id)
-    if not product:
+    if not product or not product.is_active:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product tidak ditemukan",

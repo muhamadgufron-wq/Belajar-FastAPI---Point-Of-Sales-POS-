@@ -10,7 +10,13 @@ class Transaction(SQLModel, table=True):
     uang_bayar: float = Field(default=0.0)
     uang_kembali: float = Field(default=0.0)
     tipe_pembayaran: str = Field(default="CASH")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"server_default": func.now()})
+    status: str = Field(default="COMPLETED")
+    alasan_pembatalan: str | None = Field(default=None)
+    cancelled_at: datetime | None = Field(default=None)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column_kwargs={"server_default": func.now()},
+    )
 
 class TransactionItem(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)

@@ -1,3 +1,4 @@
+from datetime import date
 from sqlmodel import SQLModel
 
 
@@ -8,6 +9,8 @@ class TopProduct(SQLModel):
     total_pendapatan: float
 
 class ReportSummary(SQLModel):
+    start_date: date | None = None
+    end_date: date | None = None
     total_omset: float
     total_profit: float
     total_transaksi: int

@@ -36,14 +36,17 @@ Backend RESTful API untuk sistem **Point of Sale (POS) / Kasir Toko** yang diran
    - Relasi _One-to-Many_ antara tabel `Category` dan `Product` menggunakan **Foreign Key**.
    - Fitur filter produk berdasarkan kategori (`GET /products/?id_category=1`).
 
-4. **🛒 Engine Transaksi Kasir (Checkout):**
+4. **🛒 Engine Transaksi Kasir (Checkout & Void/Cancel):**
    - **Validasi Otomatis:** Memeriksa ketersediaan produk, memastikan stok mencukupi, dan memvalidasi kecukupan uang tunai pembeli.
    - **Pemotongan Stok Otomatis:** Mengurangi stok produk secara _real-time_ saat pembayaran berhasil.
    - **Atomic Database Transaction (ACID):** Jika terjadi kegagalan sistem di tengah jalan, seluruh perubahan transaksi di-rollback otomatis sehingga stok tidak berkurang sembarangan.
    - **Struk Belanja Digital:** Menghitung total transaksi, uang kembalian, dan menyimpan rincian barang belanjaan ke dalam tabel relasi `TransactionItem`.
+   - **Format Cetak Struk Kasir Thermal (`GET /transactions/{id}/receipt` & `/receipt/print`):** Menghasilkan format struk belanja siap cetak ke printer thermal 58mm (tersedia dalam bentuk JSON DTO maupun raw `text/plain` untuk printer kasir Bluetooth/USB).
+   - **Pembatalan / Refund Transaksi (`POST /transactions/{id}/cancel`):** Transaksi dapat dibatalkan khusus oleh `OWNER` dengan pencatatan alasan pembatalan. Stok produk otomatis dikembalikan dan transaksi yang batal otomatis dikeluarkan dari laporan penjualan/omzet toko.
 
 5. **📊 Dashboard Laporan & Analitik Penjualan:**
    - Ringkasan otomatis performa toko (`GET /reports/summary`).
+   - **Filter Periode / Rentang Tanggal:** Filter laporan berdasarkan tanggal (`?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD`) berbasis zona waktu Indonesia (WIB) atau melihat data kumulatif (*all-time*) jika parameter dikosongkan.
    - Kalkulasi _real-time_ untuk total omzet, laba bersih (profit), total transaksi kasir, dan volume produk terjual.
    - Analisis produk terlaris (_Top 5 Best Seller_) beserta total omzet yang dihasilkan per item.
 
@@ -150,3 +153,11 @@ Buka browser dan kunjungi:
 👉 **`http://127.0.0.1:8000/docs`**
 
 Gunakan tombol **Authorize 🔓** di Swagger UI untuk login sebagai kasir dan mulai mengeksekusi endpoint yang terproteksi.
+
+### 6. Menjalankan Automated Test Suite (Pytest)
+
+Jalankan seluruh skenario pengujian otomatis (Auth, RBAC, Produk, Transaksi, Restock, & Laporan) dengan satu perintah:
+
+```bash
+uv run pytest -v
+```
