@@ -27,6 +27,7 @@ Backend RESTful API untuk sistem **Point of Sale (POS) / Kasir Toko** yang diran
      - **`OWNER`**: Akses penuh ke seluruh sistem, termasuk penambahan/perubahan/penghapusan produk dan kategori, serta akses penuh ke laporan penjualan toko (omzet, laba bersih, dan produk terlaris).
    - Proteksi endpoint tingkat lanjut menggunakan FastAPI Dependency Injection (`get_current_user` & `require_roles`).
    - **Proteksi CORS (Cross-Origin Resource Sharing):** Whitelist domain frontend terpercaya (`localhost:5173`, `localhost:3000`, dll) untuk mencegah akses dari website pihak ketiga yang tidak berizin.
+   - **Database Seeder / Initializer CLI (`seed.py`):** Mengatasi masalah *chicken-and-egg* saat deployment pertama. CLI otomatis untuk bootstrap akun `OWNER` perdana dan kategori awal toko secara aman dan idempoten.
 
 2. **📦 Manajemen Produk & Inventori (Katalog):**
    - CRUD lengkap untuk produk toko (nama, harga modal, harga jual, dan stok barang).
@@ -78,10 +79,12 @@ Belajar FastAPI/
 │   ├── core/                        # Konfigurasi Inti
 │   │   ├── config.py                # Pydantic BaseSettings (.env reader)
 │   │   ├── database.py              # Koneksi engine PostgreSQL & get_session
+│   │   ├── limiter.py               # Rate Limiter SlowAPI & Reverse-Proxy IP
+│   │   ├── seed.py                  # Database Seeder (Akun OWNER perdana & Kategori awal)
 │   │   └── security.py              # Hash Argon2id & pembuat JWT
 │   │
 │   ├── models/                      # Definisi Tabel Database Fisik (SQLModel table=True)
-│   │   ├── user.py                  # Tabel user kasir
+│   │   ├── user.py                  # Tabel user kasir & owner
 │   │   ├── category.py              # Tabel kategori
 │   │   ├── product.py               # Tabel produk
 │   │   ├── transaction.py           # Tabel transaction & transactionitem
@@ -99,13 +102,15 @@ Belajar FastAPI/
 │   │   ├── auth.py                  # Endpoint /auth (register, login, me)
 │   │   ├── category.py              # Endpoint /categories
 │   │   ├── product.py               # Endpoint /products
-│   │   ├── transaction.py           # Endpoint /transactions (checkout kasir)
+│   │   ├── transaction.py           # Endpoint /transactions (checkout kasir & void)
 │   │   ├── report.py                # Endpoint /reports (laporan omzet & profit)
 │   │   └── stock_in.py              # Endpoint /inventory/stock-in (kulakan stok)
 │   │
 │   ├── dependencies.py              # Satpam Auth & RBAC (get_current_user & require_roles)
-│   └── main.py                      # FastAPI Orchestrator & Lifespan
+│   └── main.py                      # FastAPI Orchestrator, CORS & Rate Limiter
 │
+├── tests/                           # 40+ Automated Unit Tests (Pytest)
+├── seed.py                          # Shortcut CLI runner untuk Database Seeder
 ├── .env.example                     # Template environment variables
 ├── pyproject.toml                   # Konfigurasi dependency & project metadata
 └── README.md
@@ -136,6 +141,10 @@ DATABASE_URL=postgresql+psycopg://username:password@127.0.0.1:5432/nama_database
 SECRET_KEY=buat_secret_key_acak_kamu_di_sini
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+# Kredensial akun OWNER pertama (Database Seeder)
+FIRST_SUPERUSER_USERNAME=owner_neneng
+FIRST_SUPERUSER_PASSWORD=OwnerNeneng123!
 ```
 
 ### 3. Install Dependencies
@@ -144,22 +153,36 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 uv sync
 ```
 
-### 4. Jalankan Server
+### 4. Inisialisasi Database & Seeder Awal (Membuat Akun OWNER Perdana)
+
+Karena endpoint pendaftaran (`POST /auth/register`) dikunci khusus untuk role `OWNER`, jalankan seeder perdana untuk memastikan seluruh tabel dibuat, akun `OWNER` pertama di-generate, dan kategori default toko tersedia:
+
+```bash
+# Menjalankan seeder dengan akun default dari .env
+uv run python seed.py
+
+# Atau tentukan kredensial OWNER kustom secara langsung via CLI:
+uv run python seed.py --username bos_neneng --password RahasiaBanget123!
+```
+
+> **Catatan:** Script seeder ini bersifat **idempoten** (aman dijalankan berkali-kali tanpa risiko menduplikasi data yang sudah ada).
+
+### 5. Jalankan Server
 
 ```bash
 uv run fastapi dev app/main.py
 ```
 
-### 5. Akses Dokumentasi Interaktif (Swagger UI)
+### 6. Akses Dokumentasi Interaktif (Swagger UI)
 
 Buka browser dan kunjungi:
 👉 **`http://127.0.0.1:8000/docs`**
 
-Gunakan tombol **Authorize 🔓** di Swagger UI untuk login sebagai kasir dan mulai mengeksekusi endpoint yang terproteksi.
+Gunakan tombol **Authorize 🔓** di Swagger UI untuk login dengan akun OWNER (`owner_neneng` / `OwnerNeneng123!`), lalu kamu bisa mendaftarkan akun kasir baru (`POST /auth/register`) atau mengelola katalog produk.
 
-### 6. Menjalankan Automated Test Suite (Pytest)
+### 7. Menjalankan Automated Test Suite (Pytest)
 
-Jalankan seluruh skenario pengujian otomatis (Auth, RBAC, Produk, Transaksi, Restock, & Laporan) dengan satu perintah:
+Jalankan seluruh skenario pengujian otomatis (Auth, RBAC, Rate Limiting, Produk, Transaksi, Restock, Seeder & Laporan) dengan satu perintah:
 
 ```bash
 uv run pytest -v
