@@ -3,6 +3,7 @@ from app.routers.category import router as category_router
 from app.routers.product import router as product_router
 from app.routers.transaction import router as transaction_router
 from app.routers.report import router as report_router
+from app.routers.stock_in import router as stock_in_router
 
 __all__ = [
     "auth_router",
@@ -10,4 +11,5 @@ __all__ = [
     "category_router",
     "transaction_router",
     "report_router",
+    "stock_in_router",
 ]

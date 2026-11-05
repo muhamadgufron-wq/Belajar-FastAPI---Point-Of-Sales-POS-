@@ -26,6 +26,9 @@ from app.schemas.transaction import (
     TransactionRead,
     TransactionResponse,
 )
+from app.schemas.stock_in import (
+  StockInCreate, StockInItemCreate, StockInItemRead, StockInRead, StockInResponse, StockInListResponse
+)
 from app.schemas.user import Token, UserCreate, UserRead
 
 __all__ = [
@@ -49,6 +52,12 @@ __all__ = [
     "TransactionRead",
     "TransactionResponse",
     "TransactionListResponse",
+    "StockInCreate",
+    "StockInItemCreate",
+    "StockInItemRead",
+    "StockInRead",
+    "StockInResponse",
+    "StockInListResponse",
     "Token",
     "UserCreate",
     "UserRead",

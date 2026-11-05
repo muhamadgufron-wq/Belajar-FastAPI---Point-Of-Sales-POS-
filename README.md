@@ -47,7 +47,13 @@ Backend RESTful API untuk sistem **Point of Sale (POS) / Kasir Toko** yang diran
    - Kalkulasi _real-time_ untuk total omzet, laba bersih (profit), total transaksi kasir, dan volume produk terjual.
    - Analisis produk terlaris (_Top 5 Best Seller_) beserta total omzet yang dihasilkan per item.
 
-6. **📐 Standard Response Envelope:**
+6. **📥 Modul Kulakan & Restock Stok Masuk (`/inventory/stock-in`):**
+   - **Pencatatan Faktur Kulakan:** Mencatat barang masuk dari supplier dengan rincian nama supplier, catatan faktur/nota, kuantitas barang, dan harga beli modal.
+   - **Kalkulasi Moving Average Otomatis:** Menghitung ulang harga modal produk secara adil menggunakan metode *Weighted Average Cost*, dibulatkan ke Rupiah utuh.
+   - **Riwayat Pengeluaran Modal:** Audit trail lengkap untuk melacak seluruh histori kulakan barang masuk (`GET /inventory/stock-in` & `GET /inventory/stock-in/{id}`).
+   - **Proteksi Role:** Khusus diakses oleh role `OWNER`.
+
+7. **📐 Standard Response Envelope:**
    - Seluruh response API dibungkus rapi dalam format standar:
      ```json
      {
@@ -72,21 +78,24 @@ Belajar FastAPI/
 │   │   ├── user.py                  # Tabel user kasir
 │   │   ├── category.py              # Tabel kategori
 │   │   ├── product.py               # Tabel produk
-│   │   └── transaction.py           # Tabel transaction & transactionitem
+│   │   ├── transaction.py           # Tabel transaction & transactionitem
+│   │   └── stock_in.py              # Tabel stock_in & stock_in_item (kulakan)
 │   │
 │   ├── schemas/                     # Validasi Request & Response DTO (Pydantic)
 │   │   ├── user.py
 │   │   ├── category.py
 │   │   ├── product.py
 │   │   ├── transaction.py
-│   │   └── report.py
+│   │   ├── report.py
+│   │   └── stock_in.py
 │   │
 │   ├── routers/                     # Controller Endpoint REST API
 │   │   ├── auth.py                  # Endpoint /auth (register, login, me)
 │   │   ├── category.py              # Endpoint /categories
 │   │   ├── product.py               # Endpoint /products
 │   │   ├── transaction.py           # Endpoint /transactions (checkout kasir)
-│   │   └── report.py                # Endpoint /reports (laporan omzet & profit)
+│   │   ├── report.py                # Endpoint /reports (laporan omzet & profit)
+│   │   └── stock_in.py              # Endpoint /inventory/stock-in (kulakan stok)
 │   │
 │   ├── dependencies.py              # Satpam Auth & RBAC (get_current_user & require_roles)
 │   └── main.py                      # FastAPI Orchestrator & Lifespan

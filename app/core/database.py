@@ -11,7 +11,7 @@ def init_db():
     from app.models.product import Product  # noqa: F401
     from app.models.category import Category  # noqa: F401
     from app.models.transaction import Transaction, TransactionItem  # noqa: F401
-
+    from app.models.stock_in import StockIn, StockInItem  # noqa: F401
     SQLModel.metadata.create_all(engine)
 
 
