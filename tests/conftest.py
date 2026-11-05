@@ -1,7 +1,16 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from app.core.limiter import limiter
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    """Mereset rate limiter sebelum dan sesudah setiap test agar isolasi terjaga."""
+    limiter.reset()
+    yield
+    limiter.reset()
 
 
 @pytest.fixture(scope="session")

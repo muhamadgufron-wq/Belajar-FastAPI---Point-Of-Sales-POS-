@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 
 from app.core.database import get_session
+from app.core.limiter import limiter
 from app.core.security import create_access_token, hash_password, verify_password
 from app.dependencies import get_current_user, require_roles
 from app.models.user import User
@@ -60,7 +61,9 @@ def register(
     response_model=Token,
     summary="Login dan dapatkan JWT Token",
 )
+@limiter.limit("5/minute")
 def login(
+    request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Session = Depends(get_session),
 ):

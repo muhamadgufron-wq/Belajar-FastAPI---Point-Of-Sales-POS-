@@ -17,9 +17,11 @@ Backend RESTful API untuk sistem **Point of Sale (POS) / Kasir Toko** yang diran
 
 ## ✨ Fitur Utama
 
-1. **🔐 Autentikasi & Otorisasi (Role-Based Access Control - RBAC):**
+1. **🔐 Autentikasi, Otorisasi & Keamanan (RBAC & Rate Limiting):**
    - Registrasi user dengan password yang di-hash aman menggunakan algoritma **Argon2id**.
+   - **Restricted Registration:** Endpoint pendaftaran akun baru (`POST /auth/register`) dikunci ketat khusus untuk role **`OWNER`**.
    - Login berbasis **OAuth2 Password Bearer** yang menghasilkan **JWT Access Token**.
+   - **Anti Brute-Force Rate Limiting (SlowAPI):** Membatasi request login (`POST /auth/login`) maksimal 5 request per menit per IP dengan respon `429 Too Many Requests` dan header `Retry-After`. Mendukung reverse-proxy header (`X-Forwarded-For` / `X-Real-IP`).
    - **Hak Akses Berbasis Role (RBAC):**
      - **`KASIR`**: Berhak melayani transaksi kasir (`POST /transactions/`), melihat riwayat transaksi kasir, serta melihat katalog produk (`GET /products/`). Akses dibatasi agar tidak bisa mengubah katalog produk/kategori dan tidak bisa melihat laporan keuangan.
      - **`OWNER`**: Akses penuh ke seluruh sistem, termasuk penambahan/perubahan/penghapusan produk dan kategori, serta akses penuh ke laporan penjualan toko (omzet, laba bersih, dan produk terlaris).

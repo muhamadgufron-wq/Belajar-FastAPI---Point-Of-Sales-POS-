@@ -2,8 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
 
 from app.core.database import init_db
+from app.core.limiter import limiter, rate_limit_exceeded_handler
 from app.routers import (
     auth_router,
     category_router,
@@ -27,6 +29,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Konfigurasi Rate Limiter (SlowAPI)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # Konfigurasi CORS (Cross-Origin Resource Sharing)
 # Whitelist domain frontend yang diizinkan mengakses backend
